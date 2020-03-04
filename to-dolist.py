@@ -1,5 +1,5 @@
 import PySimpleGUI as sg
-from datetime import datetime
+from datetime import datetime, date
 import re, datetime
 import firebase_admin
 from firebase_admin import credentials
@@ -23,6 +23,15 @@ def month_num_to_word(input_date):
     from datetime import datetime
     x: str = datetime.strptime(input_date, '%d-%m-%y').strftime("%d-%B-%y")
     return x
+def zip_tuple_first(tup):
+    b = zip(*tup)
+    first_elem, second_elem = map(list, b)
+    return first_elem
+
+def zip_tuple_second(tup):
+    b = zip(*tup)
+    first_elem, second_elem = map(list, b)
+    return second_elem
 
 BG_COLOR = '#1B1B26'
 INPUT_BG_COLOR = '#2C2C37'
@@ -46,24 +55,18 @@ with open(file_name) as f:
             grocery_items_tmp= match_str.group()
             grocery_items.append(grocery_items_tmp)
         print(grocery_items)
-# dataList = [["Bananas", '09-March-20'], ["Apple", '04-March-20'], ["Pineapple", '04-March-20']]
 x=[]
 for i in date:
     x.append(month_num_to_word(i))
 
-dataList=merge(grocery_items,x)
+dataList=merge(grocery_items,x)    #This is the list of tuples we will be passing around in the main functions.
 
 
-def zip_tuple_first(tup):
-    b = zip(*tup)
-    first_elem, second_elem = map(list, b)
-    return first_elem
+
+    # today: date = datetime.datetime.date.today()
+    # if dataList
 
 
-def zip_tuple_second(tup):
-    b = zip(*tup)
-    first_elem, second_elem = map(list, b)
-    return second_elem
 
 
 def the_gui():
@@ -82,10 +85,10 @@ def the_gui():
                [sg.Image(data=red_line,key=image_key, pad=(0, 0))]]
         return sg.Column(col, pad=(0, 0))
 
-    task_col_1 = sg.Column([[sg.InputText('Enter Item Name', key='grocery_item', size=(22, 1),
-                                          font='courier 16 italic'),
-                             sg.InputText(default_text='DD-03-20', pad=(95, 0), key='expiration_dates', size=(25, 1),
-                                          font='courier 16 italic')],
+    task_col_1 = sg.Column([[sg.InputText('Enter Item Name', key='grocery_item', size=(26, 1),
+                                          font='courier 14 italic'),
+                             sg.InputText(default_text='DD-MM-20', pad=(83,0), key='expiration_dates', size=(10, 1),
+                                          font='courier 14 italic')],
                             [sg.Listbox(values=zip_tuple_first(dataList), size=(26, 10), font='Helvetica 15',pad=((1,0),(15,0)),
                                         key="items_list_box",
                                         no_scrollbar=True),
@@ -95,7 +98,7 @@ def the_gui():
                             [sg.Button(key='add_save',image_data=add_button),sg.Button(key='Delete',image_data=delete_button)]],key='-COL-TASKS-1')
 
     layout = [
-        [top_button('Expiration List', '-L1-', True)],
+        [top_button('XpirEE', '-L1-', True)],
         [task_col_1]
     ]
 
@@ -119,6 +122,7 @@ def the_gui():
             dataList.sort(key=lambda L: datetime.datetime.strptime(L[1], '%d-%B-%y'))
             window.FindElement('items_list_box').Update(values=zip_tuple_first(dataList))
             window.FindElement('dates_list_box').Update(values=zip_tuple_second(dataList))
+            # window.FindElement('dates_list_box').Update(background_color=INPUT_BG_COLOR)
         elif event == "Edit":
             if values is not None:
                 edit_val = values["items"][0]
